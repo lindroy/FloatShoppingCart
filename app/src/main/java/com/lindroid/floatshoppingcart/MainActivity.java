@@ -3,8 +3,6 @@ package com.lindroid.floatshoppingcart;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -63,26 +61,33 @@ public class MainActivity extends AppCompatActivity {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 startY = event.getY();
+                int i = 0;
+                while (i < 5) {
+                    hideFloatImage(moveDistance);
+                    i++;
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (Math.abs(startY - event.getY()) > 10) {
-                    hideFloatImage(moveDistance);
-                }
-                startY = event.getY();
+//                Log.e("Tag","startY="+startY+",event.getY()="+event.getY()+",相差"+Math.abs(startY - event.getY()));
+//                if (Math.abs(startY - event.getY()) > 10) {
+//                    Log.e("Tag","隐藏动画调用");
+//                    hideFloatImage(moveDistance);
+//                }
+//                startY = event.getY();
                 break;
             case MotionEvent.ACTION_UP:
-                new Handler(new Handler.Callback() {
-                    @Override
-                    public boolean handleMessage(Message msg) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showFloatImage(moveDistance);
-                            }
-                        });
-                        return false;
-                    }
-                }).sendEmptyMessageDelayed(0, 1500);
+//                new Handler(new Handler.Callback() {
+//                    @Override
+//                    public boolean handleMessage(Message msg) {
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                showFloatImage(moveDistance);
+//                            }
+//                        });
+//                        return false;
+//                    }
+//                }).sendEmptyMessageDelayed(0, 1500);
 
                 break;
         }
@@ -123,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
      * @param distance
      */
     private void hideFloatImage(int distance) {
+        Log.e("Tag", "动画执行");
         isShowFloatImage = false;
         //位移动画
         TranslateAnimation ta = new TranslateAnimation(
