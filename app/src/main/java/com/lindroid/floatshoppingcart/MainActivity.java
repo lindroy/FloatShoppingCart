@@ -18,6 +18,9 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author linyulong
+ */
 public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private ImageView ivCart;
@@ -90,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
 //                }).sendEmptyMessageDelayed(0, 1500);
 
                 break;
+            default:
+                break;
         }
         return super.dispatchTouchEvent(event);
     }
@@ -154,9 +159,9 @@ public class MainActivity extends AppCompatActivity {
     private int[] getDisplayMetrics(Context context) {
         DisplayMetrics mDisplayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
-        int W = mDisplayMetrics.widthPixels;
-        int H = mDisplayMetrics.heightPixels;
-        int array[] = {W, H};
+        int widthPixels = mDisplayMetrics.widthPixels;
+        int heightPixels = mDisplayMetrics.heightPixels;
+        int[] array = {widthPixels, heightPixels};
         return array;
     }
 }
