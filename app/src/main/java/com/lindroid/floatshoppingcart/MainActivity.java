@@ -17,6 +17,8 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * @author linyulong
@@ -28,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean isShowFloatImage = true;
     private float startY;
     private int moveDistance;
+    private Timer timer;
+    /**用户手指按下后抬起的实际*/
+    private long upTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         ivCart = (ImageView) findViewById(R.id.iv_cart);
         listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, titles));
 
+        //控件绘制完成之后再获取其宽高
         ivCart.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -59,26 +65,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                startY = event.getY();
-                int i = 0;
-                while (i < 5) {
-                    hideFloatImage(moveDistance);
-                    i++;
+                if (System.currentTimeMillis() - upTime < 1500) {
+                    //本次按下距离上次的抬起小于1.5s时，取消Timer
+                    timer.cancel();
                 }
+                startY = event.getY();
                 break;
             case MotionEvent.ACTION_MOVE:
-//                Log.e("Tag","startY="+startY+",event.getY()="+event.getY()+",相差"+Math.abs(startY - event.getY()));
-//                if (Math.abs(startY - event.getY()) > 10) {
-//                    Log.e("Tag","隐藏动画调用");
-//                    hideFloatImage(moveDistance);
-//                }
-//                startY = event.getY();
+                if (Math.abs(startY - event.getY()) > 10) {
+                    if (isShowFloatImage){
+                        hideFloatImage(moveDistance);
+                    }
+                }
+                startY = event.getY();
                 break;
             case MotionEvent.ACTION_UP:
+                if (!isShowFloatImage){
+                    //抬起手指1.5s后再显示悬浮按钮
 //                new Handler(new Handler.Callback() {
 //                    @Override
 //                    public boolean handleMessage(Message msg) {
@@ -92,11 +100,28 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 //                }).sendEmptyMessageDelayed(0, 1500);
 
+                    //开始1.5s倒计时
+                    upTime = System.currentTimeMillis();
+                    timer = new Timer();
+                    timer.schedule(new FloatTask(), 1500);
+                }
                 break;
             default:
                 break;
         }
         return super.dispatchTouchEvent(event);
+    }
+
+    class FloatTask extends TimerTask {
+        @Override
+        public void run() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showFloatImage(moveDistance);
+                }
+            });
+        }
     }
 
 
@@ -106,7 +131,8 @@ public class MainActivity extends AppCompatActivity {
      * @param distance
      */
     private void showFloatImage(int distance) {
-        isShowFloatImage = false;
+        Log.e("Tag", "显示动画执行");
+        isShowFloatImage = true;
         //位移动画
         TranslateAnimation ta = new TranslateAnimation(
                 distance,//起始x坐标
@@ -133,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
      * @param distance
      */
     private void hideFloatImage(int distance) {
-        Log.e("Tag", "动画执行");
+        Log.e("Tag", "隐藏动画执行");
         isShowFloatImage = false;
         //位移动画
         TranslateAnimation ta = new TranslateAnimation(
